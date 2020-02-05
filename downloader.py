@@ -4,7 +4,7 @@ import re                                   #Regular expressions
 import tkinter as tk                        #Open file dialog
 from tkinter.filedialog import askopenfile  #
 from tkinter import simpledialog            #Ask user for delimiter
-from tkinter import messagebox
+from tkinter import messagebox              #Ask user for boolean input
 import os                                   #make a directory
 import sys                                  #exit script if nothing chosen
 
@@ -48,24 +48,14 @@ with open(file_path, 'r') as csvFile:
     reader = csv.reader(csvFile, dialect='myDialect')
     for row in reader:
         if(row[1]!="NA"):
-            if(re.search("pdf$", row[1])):
-                if os.path.exists("".join((downloads_folder, row[0], ".pdf"))):
-                    answer = messagebox.askyesnocancel("File already exists", "".join(("Do you want to overwrite the file: ", row[0], "?")))
-                    if(answer == None):
-                        sys.exit()
-                    elif answer:
-                        urllib.request.urlretrieve(row[1], "".join((downloads_folder, row[0], ".pdf")))
-                else:
-                    urllib.request.urlretrieve(row[1], "".join((downloads_folder, row[0], ".pdf")))
-            if (re.search("doc$", row[1])):
-                if os.path.exists("".join((downloads_folder, row[0], ".doc"))):
-                    answer = messagebox.askyesnocancel("File already exists", "".join(("Do you want to overwrite the file: ", row[0], "?")))
-                    if(answer == None):
-                        sys.exit()
-                    elif answer:
-                        urllib.request.urlretrieve(row[1], "".join((downloads_folder, row[0], ".doc")))
-                else:
-                    urllib.request.urlretrieve(row[1], "".join((downloads_folder, row[0], ".doc")))
-
+            postfix = re.search(r'\.[A-Za-z0-9]+$', row[1]).group(0)
+            if os.path.exists("".join((downloads_folder, row[0], postfix))):
+                answer = messagebox.askyesnocancel("File already exists", "".join(("Do you want to overwrite the file: ", row[0], "?")))
+                if(answer == None):
+                    sys.exit()
+                elif answer:
+                    urllib.request.urlretrieve(row[1], "".join((downloads_folder, row[0], postfix)))
+            else:
+                urllib.request.urlretrieve(row[1], "".join((downloads_folder, row[0], postfix)))
 
 #csvFile.close() using 'with' with 'open' closes the file automatically at the end
